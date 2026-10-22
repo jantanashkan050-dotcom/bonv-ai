@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101010">
+  <title>BØNV AI | هوش مصنوعی</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: #101010; color: #fff;
+      font-family: system-ui, sans-serif;
+    }
+    header {
+      padding: 22px 16px; text-align: center;
+      background: #181818; border-bottom: 2px solid #e32636;
+    }
+    header h1 { margin: 0; color: #ff3448; font-size: 30px; }
+    header p { color: #bbb; margin-bottom: 0; }
+    main { max-width: 700px; margin: 24px auto; padding: 12px; }
+    .card {
+      background: #191919; border: 1px solid #383838;
+      border-radius: 16px; padding: 18px; margin-bottom: 18px;
+    }
+    h2 { color: #ff3448; }
+    #messages {
+      min-height: 240px; max-height: 45vh; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .msg { padding: 12px; border-radius: 12px; line-height: 1.9; white-space: pre-wrap; }
+    .user { background: #392025; align-self: flex-start; }
+    .ai { background: #292929; align-self: stretch; }
+    form { display: flex; gap: 8px; margin-top: 14px; }
+    input {
+      min-width: 0; flex: 1; padding: 13px; border-radius: 10px;
+      border: 1px solid #555; background: #101010; color: white; font-size: 16px;
+    }
+    button {
+      border: 0; border-radius: 10px; background: #e32636;
+      color: white; padding: 12px 16px; font-size: 16px; font-weight: bold;
+    }
+    button:disabled { opacity: .5; }
+    a { color: #ff6674; }
+    small { color: #aaa; line-height: 2; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BØNV AI</h1>
+    <p>هوش مصنوعی فارسی تو؛ همیشه آمادهٔ گفتگو</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>چت با BØNV AI</h2>
+      <div id="messages" aria-live="polite">
+        <div class="msg ai">سلام مشتی! 👋 من BØNV AI هستم. چه کمکی از دستم برمیاد؟</div>
+      </div>
+      <form id="chat">
+        <input id="question" placeholder="پیامت رو بنویس..." autocomplete="off" required>
+        <button id="send" type="submit">ارسال</button>
+      </form>
+      <small>برای پاسخ هوشمند، سرور چت باید راه‌اندازی شده باشد.</small>
+    </section>
+    <section class="card">
+      <h2>دربارهٔ BØNV</h2>
+      <p>BØNV یک پروژه با هدف ساخت ابزارهای هوشمند و خدمات دیجیتال است.</p>
+      <p>سازنده: محمد اشکان جانتن</p>
+      <p>کانال روبیکا: <a href="https://rubika.ir/AsbtsTR456">ورود به کانال</a></p>
+      <p>ربات BØNV: <a href="https://rubika.ir/BOKYbot">@BOKYbot</a></p>
+      <p>ربات BØNV V2: <a href="https://rubika.ir/BONV_V2bot">@BONV_V2bot</a></p>
+      <p>ارتباط: <a href="https://rubika.ir/Ashkan6A">@Ashkan6A</a></p>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('chat');
+    const input = document.getElementById('question');
+    const messages = document.getElementById('messages');
+    const send = document.getElementById('send');
+
+    function addMessage(text, who) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const question = input.value.trim();
+      if (!question) return;
+      addMessage(question, 'user');
+      input.value = '';
+      send.disabled = true;
+      send.textContent = '...';
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: question })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'خطا در پاسخ');
+        addMessage(data.reply || 'پاسخی دریافت نشد.', 'ai');
+      } catch (error) {
+        addMessage('فعلاً اتصال هوش مصنوعی برقرار نیست. ابتدا باید بخش سرور را راه‌اندازی کنیم.', 'ai');
+      } finally {
+        send.disabled = false;
+        send.textContent = 'ارسال';
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
